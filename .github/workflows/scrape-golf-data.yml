@@ -25,7 +25,7 @@ jobs:
     
     - name: Run scraper
       run: |
-        python src/ffgolf_scraper.py --test --delay 2.0 --output golfs_france.xlsx
+        python src/ffgolf_scraper.py --all --delay 0.5 --output golfs_france.xlsx
     
     - name: Get current date and time
       id: date
@@ -71,7 +71,7 @@ jobs:
           
           ---
           
-          *Données collectées de manière respectueuse avec un délai de 2 secondes entre chaque requête.*
+          *Données collectées de manière respectueuse avec un délai de 0.5 secondes entre chaque requête.*
         files: golfs_france.xlsx
         draft: false
         prerelease: false
