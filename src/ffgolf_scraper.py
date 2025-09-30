@@ -119,6 +119,8 @@ class FFGolfScrapper:
         details = {
             'nom': '',
             'adresse': '',
+            'code_postal': '',
+            'ville': '',
             'telephone': '',
             'email': '',
             'site_web': '',
@@ -134,9 +136,27 @@ class FFGolfScrapper:
         # Track missing fields
         missing_fields = []
 
-        adresse_match = re.search(r'adresse\s*:\s*([^\n]+)', page_text, re.IGNORECASE)
+        # Adresse
+        adresse_match = re.search(r'adresse\s*:\s*(.+?)(?=téléphone|e-mail|site web|$)', page_text, re.IGNORECASE | re.DOTALL)
         if adresse_match:
-            details['adresse'] = adresse_match.group(1).strip()
+            adresse_raw = adresse_match.group(1).strip()
+            # Clean up: remove excessive whitespace and newlines
+            adresse_complete = re.sub(r'\s+', ' ', adresse_raw).strip()
+            
+            print(f"Debug adresse_complete: '{adresse_complete}'")
+            
+            # Look for postal code (5 digits) and city
+            # Try pattern: anything + 5 digits + city name
+            cp_ville_match = re.search(r'(.+?)\s+(\d{5})\s+([A-ZÀ-Ÿ][A-ZÀ-Ÿ\s\-]+)$', adresse_complete)
+            
+            if cp_ville_match:
+                print(f"Debug cp_ville_match: {cp_ville_match.groups()}")
+                details['adresse'] = cp_ville_match.group(1).strip()
+                details['code_postal'] = cp_ville_match.group(2)
+                details['ville'] = cp_ville_match.group(3).strip()
+            else:
+                # Fallback: store the whole thing in adresse
+                details['adresse'] = adresse_complete
         else:
             missing_fields.append('adresse')
 
@@ -210,7 +230,7 @@ class FFGolfScrapper:
 
         df = pd.DataFrame(self.golfs_data)
 
-        columns_order = ['region', 'nom', 'adresse', 'telephone', 'email', 'site_web', 'url_ffgolf']
+        columns_order = ['region', 'nom', 'adresse', 'code_postal', 'ville', 'telephone', 'email', 'site_web', 'url_ffgolf']
         df = df.reindex(columns=columns_order)
         df.to_excel(filename, index=False, engine='openpyxl')
 
