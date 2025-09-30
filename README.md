@@ -36,6 +36,16 @@ Ce scraper collecte automatiquement les informations détaillées des terrains d
 pip install -r requirements.txt
 ```
 
+## 📥 Téléchargement des données pré-générées
+
+**Vous n'avez pas besoin d'exécuter le scraper !** Des fichiers Excel à jour sont automatiquement générés chaque mois et disponibles dans la section [Releases](../../releases).
+
+1. Allez dans l'onglet **Releases** (sur la droite de la page GitHub)
+2. Téléchargez le fichier `golfs_france.xlsx` de la release la plus récente
+3. Ouvrez le fichier avec Excel, LibreOffice, ou Google Sheets
+
+Les données sont mises à jour automatiquement le 1er de chaque mois.
+
 ## Utilisation
 
 ### Utilisation de base

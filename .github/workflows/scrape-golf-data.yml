@@ -1,0 +1,87 @@
+name: Scrape Golf Data
+
+on:
+  workflow_dispatch:  # Permet de déclencher manuellement depuis l'onglet Actions
+  schedule:
+    - cron: '0 3 1 * *'  # Exécute le 1er de chaque mois à 3h du matin UTC
+
+jobs:
+  scrape-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run scraper
+      run: |
+        python ffgolf_scraper.py --tests --delay 2.0 --output golfs_france.xlsx
+    
+    - name: Get current date and time
+      id: date
+      run: |
+        echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+        echo "datetime=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
+    
+    - name: Get golf statistics
+      id: stats
+      run: |
+        python -c "
+        import pandas as pd
+        df = pd.read_excel('golfs_france.xlsx')
+        print(f'total_golfs={len(df)}')
+        print(f'total_regions={df[\"region\"].nunique()}')
+        " >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: data-${{ steps.date.outputs.date }}
+        name: Données Golfs France - ${{ steps.date.outputs.date }}
+        body: |
+          ## 📊 Données des terrains de golf en France
+          
+          Données extraites le **${{ steps.date.outputs.date }}** depuis [FFGolf.org](https://www.ffgolf.org)
+          
+          ### Statistiques
+          - 🏌️ **${{ steps.stats.outputs.total_golfs }}** terrains de golf
+          - 📍 **${{ steps.stats.outputs.total_regions }}** régions couvertes
+          
+          ### 📥 Téléchargement
+          Téléchargez le fichier Excel ci-dessous pour accéder à toutes les données.
+          
+          ### 📋 Colonnes incluses
+          - Région
+          - Nom du golf
+          - Adresse
+          - Téléphone
+          - Email
+          - Site web
+          - URL FFGolf
+          
+          ---
+          
+          *Données collectées de manière respectueuse avec un délai de 2 secondes entre chaque requête.*
+        files: golfs_france.xlsx
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Delete old releases
+      uses: dev-drprasad/delete-older-releases@v0.3.2
+      with:
+        keep_latest: 12  # Garde les 12 dernières releases (1 an si mensuel)
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
