@@ -64,6 +64,8 @@ jobs:
           - Région
           - Nom du golf
           - Adresse
+          - Code postal
+          - Ville
           - Téléphone
           - Email
           - Site web
