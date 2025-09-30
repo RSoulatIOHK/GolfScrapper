@@ -143,14 +143,14 @@ class FFGolfScrapper:
             # Clean up: remove excessive whitespace and newlines
             adresse_complete = re.sub(r'\s+', ' ', adresse_raw).strip()
             
-            print(f"Debug adresse_complete: '{adresse_complete}'")
+            # print(f"Debug adresse_complete: '{adresse_complete}'")
             
             # Look for postal code (5 digits) and city
             # Try pattern: anything + 5 digits + city name
             cp_ville_match = re.search(r'(.+?)\s+(\d{5})\s+([A-ZÀ-Ÿ][A-ZÀ-Ÿ\s\-]+)$', adresse_complete)
             
             if cp_ville_match:
-                print(f"Debug cp_ville_match: {cp_ville_match.groups()}")
+                # print(f"Debug cp_ville_match: {cp_ville_match.groups()}")
                 details['adresse'] = cp_ville_match.group(1).strip()
                 details['code_postal'] = cp_ville_match.group(2)
                 details['ville'] = cp_ville_match.group(3).strip()
