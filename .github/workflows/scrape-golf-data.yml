@@ -76,7 +76,7 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
     
     - name: Delete old releases
       uses: dev-drprasad/delete-older-releases@v0.3.2
@@ -84,4 +84,4 @@ jobs:
         keep_latest: 12  # Garde les 12 dernières releases (1 an si mensuel)
         delete_tags: true
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
